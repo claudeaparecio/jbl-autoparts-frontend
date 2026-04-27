@@ -4,6 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "caddy run --config /Caddyfile --adapter caddyfile 2>&1"
+    "startCommand": "npx serve -s build -l 3000"
   }
 }
