@@ -26,6 +26,7 @@ type GetUsersRequest = {
 export const userApi = createApi({
   reducerPath: 'userApi',
   baseQuery: baseQueryWithAuthHandler,
+  tagTypes: ["Users", "UserDetails"],
   endpoints: (builder) => ({
     signIn: builder.mutation<any, { username: string; password: string }>({
       query: ({ username, password }) => ({
@@ -52,12 +53,14 @@ export const userApi = createApi({
         url: `api/v1/users/activate/${userId}`,
         method: 'POST',
       }),
+      invalidatesTags: ["Users"],
     }),
     deactivateUser: builder.mutation<any, string>({
       query: (userId) => ({
         url: `api/v1/users/deactivate/${userId}`,
         method: 'POST',
       }),
+      invalidatesTags: ["Users"],
     }),
     changePassword: builder.mutation<any, {userId: string; newPassword: string; }>({
       query: ({userId, newPassword}) => ({
@@ -77,18 +80,21 @@ export const userApi = createApi({
           username,
         }
       }),
+      invalidatesTags: ["Users", "UserDetails"],
     }),
     getUsers: builder.query<GetUsersResponse, GetUsersRequest>({
       query: ({ role }) => ({
         url: `api/v1/users?${role ? 'role='+ role : ""}`,
         method: 'GET',
       }),
+      providesTags: ["Users"],
     }),
     getUserDetails: builder.query<GetUserResponse, void>({
       query: () => ({
         url: `api/v1/users/details`,
         method: 'GET',
       }),
+      providesTags: ["UserDetails"],
     }),
   }),
 })

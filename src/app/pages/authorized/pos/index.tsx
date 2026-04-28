@@ -103,10 +103,9 @@ const POSPage = () => {
       } catch (err) {
         console.error("Error fetching transactions:", err);
         Sentry.captureException(err);
-      } finally {
       }
     },
-    [pagination, transactionFilter]
+    [pagination.page, pagination.limit, transactionFilter]
   );
 
   const _setActiveTab = (val: string) => {
@@ -449,7 +448,7 @@ const POSPage = () => {
         <p className="font-semibold text-2xl text-center">
           Ready for next customer
         </p>
-        <p className="font-medium text-md text-center px-10 text-gray-700 text-primary">
+        <p className="font-medium text-md text-center px-10 text-gray-500">
           To start, select items to be added to cart.
         </p>
       </div>

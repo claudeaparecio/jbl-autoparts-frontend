@@ -19,30 +19,6 @@ import {
 } from "store/slices/inventorySlice";
 import * as Sentry from '@sentry/react';
 
-const stats = [
-  {
-    label: "Active Products",
-    value: Math.floor(Math.random() * 9901) + 100,
-    trend: Number((Math.random() * 1.98 - 0.99).toFixed(2)),
-  },
-  {
-    label: "Low Stock Items",
-    value: Math.floor(Math.random() * 401) + 100,
-    trend: Number((Math.random() * 1.98 - 0.99).toFixed(2)),
-  },
-  {
-    label: "Out Stock Items",
-    value: Math.floor(Math.random() * 101) + 100,
-    trend: Number((Math.random() * 1.98 - 0.99).toFixed(2)),
-  },
-  {
-    label: "Total Value of Products",
-    value: Math.floor(Math.random() * (10000000 - 1000000 + 1)) + 1000000,
-    trend: Number((Math.random() * 1.98 - 0.99).toFixed(2)),
-    isAmount: true,
-  },
-];
-
 const Inventory = () => {
   const dispatch = useDispatch();
   const state = useSelector((state: RootState) => state);
@@ -106,11 +82,7 @@ const Inventory = () => {
 
   useEffect(() => {
     refreshTable(withVaraint);
-  }, [pageIndex, pageSize, globalFilter, status.value]);
-
-  useEffect(() => {
-    refreshTable();
-  }, []);
+  }, [pageIndex, pageSize, globalFilter, status.value, withVaraint]);
 
   const resetDeleteProduct = () => {
     setProductToDelete(undefined);
@@ -155,7 +127,7 @@ const Inventory = () => {
             onClick={toggleWithVariant}
             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
           />
-          <label htmlFor="noVariant" className="text-sm text-gray-700 ml-2 font-semibold text-primary">
+          <label htmlFor="noVariant" className="text-sm ml-2 font-semibold text-primary">
             With Variant
           </label>
         </div>
@@ -190,17 +162,14 @@ const Inventory = () => {
           <>
             <p className="text-primary text-md">
               Product Name:
-              <p className="font-semibold text-xl">{productToDelete?.name}</p>
+              <span className="block font-semibold text-xl">{productToDelete?.name}</span>
             </p>
             <p className="text-primary text-md">
               Part Number:
-              <p className="font-semibold text-xl">
-                {productToDelete?.partNumber}
-              </p>
+              <span className="block font-semibold text-xl">{productToDelete?.partNumber}</span>
             </p>
           </>
         )}
-        <p></p>
       </Modal>
     </div>
   );

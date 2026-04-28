@@ -127,6 +127,21 @@ const Dashboard = () => {
     dispatch(setSalesStatistics(response.data?.data));
   };
 
+  const refreshTransactions = useCallback(async () => {
+    try {
+      const response = await getTransactions({
+        page: pageIndex,
+        limit: pageSize,
+        search: globalFilter,
+      });
+      dispatch(setTotal(response.data?.data?.pagination?.total ?? 0));
+      setTransactions(response.data?.data.transactions);
+    } catch (error) {
+      Sentry.captureException(error);
+      toast.error("Something went wrong, try again later.");
+    }
+  }, [pageIndex, pageSize, globalFilter]);
+
   useEffect(() => {
     getSkus();
     fetchSalesStatistics();
@@ -149,21 +164,6 @@ const Dashboard = () => {
     setViewTransaction(txn);
     toggleShowViewInvoiceModal();
   };
-
-  const refreshTransactions = useCallback(async () => {
-    try {
-      const response = await getTransactions({
-        page: pageIndex,
-        limit: pageSize,
-        search: globalFilter,
-      });
-      dispatch(setTotal(response.data?.data?.pagination?.total ?? 0));
-      setTransactions(response.data?.data.transactions);
-    } catch (error) {
-      Sentry.captureException(error);
-      toast.error("Something went wrong, try again later.");
-    }
-  }, [pageIndex, pageSize, globalFilter]);
 
   useEffect(() => {
     if (error) {

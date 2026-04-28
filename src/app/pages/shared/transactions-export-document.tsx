@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import React, { useState } from 'react';
+import { pdf, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import moment from 'moment';
 import { Transaction } from 'types/transaction';
 import { useLazyGetAllTransactionsQuery } from 'store/apis/transactionsApi';
@@ -44,11 +44,7 @@ const styles = StyleSheet.create({
   },
 });
 
-type TransactionsDocumentProps = {
-  transactions?: Transaction[];
-}
-
-const TransactionsDocument = ({ transactions }: TransactionsDocumentProps) => (
+const TransactionsDocument = ({ transactions }: { transactions: Transaction[] }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       <Text style={styles.header}>Transaction List as of {moment().format("MMMM DD YYYY")}</Text>
@@ -97,52 +93,43 @@ const TransactionsDocument = ({ transactions }: TransactionsDocumentProps) => (
   </Document>
 );
 
-type ExportTransactionsPDFProps = {
-  transactions?: Transaction[];
-}
-const ExportTransactionsPDF = ({ }: ExportTransactionsPDFProps) => {
+const ExportTransactionsPDF = () => {
   const [getAllTransactions] = useLazyGetAllTransactionsQuery();
+  const [loading, setLoading] = useState(false);
 
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  const loadData = useCallback(async () => {
+  const handleDownload = async () => {
     try {
       setLoading(true);
       const response: any = await getAllTransactions();
       if (response?.error) {
-        toast.error(response.error?.data?.message ?? "");
+        toast.error(response.error?.data?.message ?? "Failed to fetch transactions.");
         return;
       }
-      setTransactions(response?.data?.data);
-      setLoading(false);
+      const transactions: Transaction[] = response?.data?.data ?? [];
+      const blob = await pdf(<TransactionsDocument transactions={transactions} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `transactions-${moment().format('D-M-YYYY')}.pdf`;
+      anchor.click();
+      URL.revokeObjectURL(url);
     } catch (error) {
-      setError(true);
-      setLoading(false);
+      toast.error("Failed to generate PDF.");
       Sentry.captureException(error);
+    } finally {
+      setLoading(false);
     }
-  }, [])
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  if (loading) return <button disabled className='px-4 py-2 rounded-lg bg-secondary-medium text-black font-medium'>Loading...</button>;
-
-  if (error) return <button disabled className='px-4 py-2 rounded-lg bg-secondary-medium text-black font-medium'>Export Unavailable</button>;
+  };
 
   return (
-    <PDFDownloadLink
-      document={<TransactionsDocument transactions={transactions} />}
-      fileName={`transactions-${moment().format('D-M-YYYY')}.pdf`}
-      className='px-4 py-2 rounded-lg bg-secondary-medium text-black font-medium'
+    <button
+      onClick={handleDownload}
+      disabled={loading}
+      className="px-4 py-2 rounded-lg bg-secondary-medium text-black font-medium disabled:opacity-50"
     >
-      {({ loading }) =>
-        loading ? <span>Generating PDF...</span> : <span>Download PDF</span>
-      }
-    </PDFDownloadLink>
-  )
+      {loading ? 'Generating...' : 'Download PDF'}
+    </button>
+  );
 };
 
 export default ExportTransactionsPDF;

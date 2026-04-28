@@ -57,7 +57,6 @@ const SearchProducts = () => {
 
   const [trigger, productsResponse] = useLazyGetProductsQuery();
 
-  const [filter, setFilter] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshTable = useCallback(async () => {

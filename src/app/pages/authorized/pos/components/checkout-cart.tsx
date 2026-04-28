@@ -167,7 +167,7 @@ const CheckoutCart = ({
             - {formatAmount(discountAmount)}
           </div>
         )}
-        <div className="flex flex justify-between items-center gap-2">
+        <div className="flex justify-between items-center gap-2">
           <label className="text-sm font-semibold text-primary">
             Discount
             <label className="text-xs text-gray-400 font-semibold ml-1">

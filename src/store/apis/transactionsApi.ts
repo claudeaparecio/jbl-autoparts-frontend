@@ -76,6 +76,7 @@ type GetSalesStatisticsResponse = {
 export const transactionsApi = createApi({
   reducerPath: "transactionsApi",
   baseQuery: baseQueryWithAuthHandler,
+  tagTypes: ["Transactions", "MyTransactions", "Statistics"],
   endpoints: (builder) => ({
     createTransaction: builder.mutation<any, CreateTransactionRequest>({
       query: (request) => ({
@@ -83,6 +84,7 @@ export const transactionsApi = createApi({
         method: "POST",
         body: request,
       }),
+      invalidatesTags: ["MyTransactions", "Transactions", "Statistics"],
     }),
     updateTransaction: builder.mutation<any, { payload: UpdateTransactionRequest, id: string }>({
       query: ({ id, payload }) => ({
@@ -90,48 +92,56 @@ export const transactionsApi = createApi({
         method: "PUT",
         body: payload,
       }),
+      invalidatesTags: ["MyTransactions", "Transactions", "Statistics"],
     }),
     cancelTransaction: builder.mutation<CancelTransactionResponse, string>({
       query: (transactionId) => ({
         url: `api/v1/transactions/cancel/${transactionId}`,
         method: "PATCH",
       }),
+      invalidatesTags: ["MyTransactions", "Transactions", "Statistics"],
     }),
     returnTransaction: builder.mutation<CancelTransactionResponse, string>({
       query: (transactionId) => ({
         url: `api/v1/transactions/return/${transactionId}`,
         method: "PATCH",
       }),
+      invalidatesTags: ["MyTransactions", "Transactions", "Statistics"],
     }),
     getMyTransactions: builder.query<GetMyTransactionResponse, GetMyTransactionRequest>({
       query: ({ isAdmin, limit, page, search }) => ({
         url: `api/v1/transactions/my-transactions?isAdmin=${isAdmin}&page=${page}&limit=${limit}&search=${search}`,
         method: "GET",
       }),
+      providesTags: ["MyTransactions"],
     }),
     getMyStatistics: builder.query<GetMyTransactionsStatisticsResponse, void>({
       query: () => ({
         url: "api/v1/transactions/statistics",
         method: "GET",
       }),
+      providesTags: ["Statistics"],
     }),
     getTransactions: builder.query<GetTransactionResponse, GetTransactionRequest>({
       query: ({ limit, page, search }) => ({
         url: `api/v1/transactions?page=${page + 1}&limit=${limit}&search=${search}`,
         method: "GET"
-      })
+      }),
+      providesTags: ["Transactions"],
     }),
     getAllTransactions: builder.query<GetAllTransactionResponse, void>({
       query: () => ({
         url: 'api/v1/transactions/all-transactions',
         method: "GET"
-      })
+      }),
+      providesTags: ["Transactions"],
     }),
     getSalesStatistics: builder.query<GetSalesStatisticsResponse, void>({
       query: () => ({
         url: "api/v1/transactions/sales-statistics",
         method: "GET",
       }),
+      providesTags: ["Statistics"],
     })
   }),
 });

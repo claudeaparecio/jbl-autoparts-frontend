@@ -31,6 +31,7 @@ type GetProductsRequest = {
 export const productsApi = createApi({
   reducerPath: "productsApi",
   baseQuery: baseQueryWithAuthHandler,
+  tagTypes: ["Products", "Product"],
   endpoints: (builder) => ({
     createProduct: builder.mutation<any, FormData>({
       query: (product) => ({
@@ -38,12 +39,14 @@ export const productsApi = createApi({
         method: "POST",
         body: product,
       }),
+      invalidatesTags: ["Products"],
     }),
     getProducts: builder.query<GetProductsResponse, GetProductsRequest>({
       query: ({ limit, page, search, status, noVariant }) => ({
         url: `api/v1/products?page=${page +
           1}&limit=${limit}&search=${search}&status=${status}&noVariant=${noVariant}`,
       }),
+      providesTags: ["Products"],
     }),
     editProduct: builder.mutation<any, { productId: string; formData: FormData }>({
       query: ({ formData, productId }) => ({
@@ -51,18 +54,24 @@ export const productsApi = createApi({
         method: "PUT",
         body: formData,
       }),
+      invalidatesTags: (result, error, arg) => [
+        "Products",
+        { type: "Product", id: arg.productId },
+      ],
     }),
     getProductById: builder.query<any, { productId: string }>({
       query: ({ productId }) => ({
         url: `api/v1/products/${productId}`,
         method: "GET",
       }),
+      providesTags: (result, error, arg) => [{ type: "Product", id: arg.productId }],
     }),
     getProductByStatus: builder.query<any, string>({
       query: (status) => ({
         url: `api/v1/products/products-by-status?status=${status}`,
         method: "GET",
       }),
+      providesTags: ["Products"],
       transformResponse: (response: GetProductsByStatusResponse) => {
         return {
           ...response,
@@ -78,6 +87,7 @@ export const productsApi = createApi({
         url: `api/v1/products/${productId}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Products"],
     }),
   }),
 });

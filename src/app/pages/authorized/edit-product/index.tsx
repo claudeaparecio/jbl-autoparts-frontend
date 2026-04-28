@@ -62,14 +62,12 @@ const validationSchema = Yup.object({
 
 const EditProduct = () => {
   const navigate = useNavigate();
-  const dispactch = useDispatch();
+  const dispatch = useDispatch();
   const { data: skusData } = useGetSKUsQuery();
   const state = useSelector((state: RootState) => state);
   const editProductId = state.editProduct._id;
   const isMobile = state.app.isMobile;
   const role = state.user.role;
-
-  const dispatch = useDispatch();
 
   const [editProduct] = useEditProductMutation();
   const [getProductById] = useLazyGetProductByIdQuery();
@@ -115,7 +113,7 @@ const EditProduct = () => {
   }, [state.editProduct._id])
 
   const _clearData = () => {
-    dispactch(clearData());
+    dispatch(clearData());
   };
 
   const toggleAddVariantModalOpen = () => {
@@ -162,7 +160,7 @@ const EditProduct = () => {
       formData.append("existingImages", JSON.stringify(existingImageUrls));
 
       const editedProduct = await editProduct({ formData, productId: values?._id ?? "" }).unwrap();
-      // dispatch(setIsAppLoading(false));
+      dispatch(setIsAppLoading(false));
       setProductVariants((variants) => variants.map((variant) => variant._id === editedProduct.data._id ? editedProduct.data : variant));
 
       toast.success("Variant Edited!");
@@ -171,6 +169,7 @@ const EditProduct = () => {
     } catch (err) {
       console.error("Product variant update failed:", err);
       toast.error("Update variant product failed.");
+      dispatch(setIsAppLoading(false));
       Sentry.captureException(err);
     }
   }
@@ -221,6 +220,7 @@ const EditProduct = () => {
     } catch (err) {
       console.error("Product updated failed:", err);
       toast.error("Update product failed.");
+      dispatch(setIsAppLoading(false));
       Sentry.captureException(err);
     }
   }
@@ -295,6 +295,7 @@ const EditProduct = () => {
       console.error("Product updated failed:", err);
       Sentry.captureException(err);
       toast.error("Update product failed.");
+      dispatch(setIsAppLoading(false));
     }
   };
 

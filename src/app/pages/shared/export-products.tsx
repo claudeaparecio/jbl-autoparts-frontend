@@ -1,6 +1,5 @@
-// components/ExportPDFButton.js
-import React, { useCallback, useEffect, useState } from 'react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import React, { useState } from 'react';
+import { pdf } from '@react-pdf/renderer';
 import ProductPDFDocument from './product-pdf-document';
 import { ProductDetails } from 'types/inventory';
 import { Status } from 'store/slices/inventorySlice';
@@ -15,50 +14,47 @@ type ExportPDFButtonProps = {
 }
 
 const ExportProductsPDFButton = ({ status }: ExportPDFButtonProps) => {
-
   const [getProductsByStatus] = useLazyGetProductByStatusQuery();
+  const [loading, setLoading] = useState(false);
 
-  const [products, setProducts] = useState<ProductDetails[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  const loadData = useCallback(async () => {
+  const handleDownload = async () => {
     try {
       setLoading(true);
       const response: any = await getProductsByStatus(status.value);
       if (response?.error) {
-        toast.error(response.error?.data?.message ?? "");
+        toast.error(response.error?.data?.message ?? "Failed to fetch products.");
         return;
       }
-      setProducts(response?.data?.data);
-      setLoading(false);
-    } catch (error) {
-      setError(true);
-      setLoading(false);
-      Sentry.captureException(error);
-    }
-  }, [status])
-
-  useEffect(() => {
-    loadData();
-  }, [status]);
-
-  if (loading) return <button disabled className='px-4 py-2 rounded-lg bg-secondary-medium text-black font-medium'>Loading...</button>;
-
-  if (error || products.length === 0) return <button disabled className='px-4 py-2 rounded-lg bg-secondary-medium text-black font-medium'>Export Unavailable</button>;
-
-  const statusString = status?.label?.replace(' ', '-');
-  return (
-    <PDFDownloadLink
-      document={<ProductPDFDocument status={status} products={products} />}
-      fileName={`${moment().format('D-M-YYYY')}-${statusString}-Products.pdf`}
-      className="px-4 py-2 rounded-lg bg-secondary-medium text-black font-medium"
-    >
-      {({ loading }) =>
-        loading ? <span>Generating PDF...</span> : <span>Download PDF</span>
+      const products: ProductDetails[] = response?.data?.data ?? [];
+      if (products.length === 0) {
+        toast.error("No products to export.");
+        return;
       }
-    </PDFDownloadLink>
-  )
+      const blob = await pdf(<ProductPDFDocument status={status} products={products} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      const statusString = status?.label?.replace(' ', '-');
+      anchor.download = `${moment().format('D-M-YYYY')}-${statusString}-Products.pdf`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error("Failed to generate PDF.");
+      Sentry.captureException(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleDownload}
+      disabled={loading}
+      className="px-4 py-2 rounded-lg bg-secondary-medium text-black font-medium disabled:opacity-50"
+    >
+      {loading ? 'Generating...' : 'Download PDF'}
+    </button>
+  );
 };
 
 export default ExportProductsPDFButton;

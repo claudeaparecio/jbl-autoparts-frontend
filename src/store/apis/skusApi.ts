@@ -26,9 +26,11 @@ type DeleteSKUResponse = {
 export const skusApi = createApi({
   reducerPath: "skusApi",
   baseQuery: baseQueryWithAuthHandler,
+  tagTypes: ["SKUs"],
   endpoints: (builder) => ({
     getSKUs: builder.query<GetSKUsResponse, void>({
       query: () => `api/v1/skus`,
+      providesTags: ["SKUs"],
     }),
     checkSKU: builder.query<GetCheckSKUResponse, string>({
       query: (sku) => `api/v1/skus/checker/${sku}`,
@@ -39,12 +41,14 @@ export const skusApi = createApi({
         method: "POST",
         body: skus,
       }),
+      invalidatesTags: ["SKUs"],
     }),
     deleteSKU: builder.mutation<DeleteSKUResponse, string>({
       query: (skuId) => ({
         url: `api/v1/skus/${skuId}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["SKUs"],
     }),
   }),
 });

@@ -47,7 +47,7 @@ const viewProductPersistConfig = {
 };
 
 const addProductPersistConfig = {
-  key: "viewProduct",
+  key: "addProduct",
   storage: storageSession,
 };
 

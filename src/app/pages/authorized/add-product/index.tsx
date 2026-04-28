@@ -108,6 +108,7 @@ const AddProduct = () => {
       Sentry.captureException(err);
       console.error("Product creation failed:", err);
       toast.error("Create product failed.");
+      dispatch(setIsAppLoading(false));
     }
   };
 
