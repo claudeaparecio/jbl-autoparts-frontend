@@ -80,23 +80,23 @@ const POSResults = ({
                   </div>
                 )}
               </ProductImage>
-              <div className="flex h-[130px]">
-                <div className="p-1 flex flex-col w-full h-100">
+              <div className="flex">
+                <div className="p-2 flex flex-col w-full overflow-hidden">
                   <button
                     title="View Details"
                     onClick={(e) => onClickView(result._id ?? "", e)}
-                    className="line-clamp-3 font-semibold text-sm text-primary text-left overflow-hidden text-ellipsis mb-1"
+                    className="line-clamp-2 font-semibold text-sm text-primary text-left mb-1"
                   >
                     {result.name}
                   </button>
-                  <p className="line-clamp-3 font-medium text-primary text-xs text-left mb-1">
+                  <p className="line-clamp-1 font-medium text-primary text-xs text-left mb-1">
                     {result.partNumber ?? "-"}
                   </p>
                   <Status justify="justify-start" status={result?.status} />
-                  <p className="line-clamp-3 font-medium text-primary text-xs text-left my-1">
+                  <p className="line-clamp-1 font-medium text-primary text-xs text-left my-1">
                     {result?.price ? formatAmount(result?.price || 0) : "-"}
                   </p>
-                  <div className="flex flex-1 items-end justify-end">
+                  <div className="flex items-end justify-end mt-1">
                     <p className="font-medium text-primary text-xs">
                       Stock:{" "}
                       <span className="font-semibold">
